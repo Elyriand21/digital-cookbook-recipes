@@ -1,5 +1,6 @@
 ---
 id: chicken-alfredo
+title: Chicken Alfredo
 tags: [italian, dinner, pasta]
 prep_time: 15
 cook_time: 25
