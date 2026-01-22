@@ -40,6 +40,7 @@ You should see a summary of all recipes downloaded and parsed from the GitHub re
 ## TO-DO
 
 * [ ] Create Desktop GUI application to view recipes
+* [X] Add caching to limit API calls
 * [ ] Add search function to find recipes by title, tags, or ingredients
 * [ ] Implement local recipe editing and saving, not allowing overwriting of original files
 * [ ] Add functionality to upload new recipes to a submission repository for review
