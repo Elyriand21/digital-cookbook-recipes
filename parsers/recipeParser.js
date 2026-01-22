@@ -5,6 +5,10 @@ export function parseRecipe(markdownText) {
     const data = parsed.data;
     const body = parsed.content;
 
+    if (!data.id || !data.title) {
+        throw new Error("Recipe missing required fields: id or title");
+    }
+
     const ingredientsMatch = body.match(/## Ingredients([\s\S]*?)## Instructions/);
     const instructionsMatch = body.match(/## Instructions([\s\S]*)$/);
 
@@ -25,10 +29,10 @@ export function parseRecipe(markdownText) {
     return {
         id: data.id,
         title: data.title,
-        tags: data.tags || [],
-        prepTime: data.prep_time || null,
-        cookTime: data.cook_time || null,
-        servings: data.servings || null,
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        prepTime: Number(data.prep_time) || null,
+        cookTime: Number(data.cook_time) || null,
+        servings: Number(data.servings) || null,
         ingredients,
         instructions,
         rawMarkdown: markdownText

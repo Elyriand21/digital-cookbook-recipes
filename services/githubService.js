@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 
-const OWNER = "YOUR_GITHUB_USERNAME";
-const REPO = "YOUR_RECIPE_REPO";
+const OWNER = "Elyriand21";
+const REPO = "digital-cookbook-recipes";
 const RECIPES_PATH = "recipes";
 
 export async function fetchRecipeFiles() {
