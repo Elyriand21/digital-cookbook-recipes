@@ -28,7 +28,8 @@ export async function fetchRecipeFiles() {
 
         recipes.push({
             filename: file.name,
-            content
+            content,
+            error: !fileRes.ok ? 'Failed to fetch' : null
         });
     }
 
