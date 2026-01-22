@@ -1,0 +1,13 @@
+{
+  "name": "digital-cookbook-core",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "testFetch.js",
+  "scripts": {
+    "start": "node testFetch.js"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "node-fetch": "^3.3.2"
+  }
+}

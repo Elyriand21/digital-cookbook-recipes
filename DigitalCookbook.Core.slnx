@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DigitalCookbook.Core.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>
