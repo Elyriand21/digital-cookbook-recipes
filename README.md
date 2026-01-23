@@ -2,6 +2,9 @@
 
 **Zero's Cookbook** is an open-source desktop application that makes it easy to browse, search, and view recipes fetched directly from GitHub. Recipes are cached locally for fast access, and the app notifies you whenever new recipes are added or existing recipes are removed.
 
+## NOTICE
+Once the .zip is extracted, running the installer.exe will bring up a Microsft Defender alert. The reason behind this is because I do not possess a signing certificate *(cause i'm broke)* so there's no way to go past that. [Here](https://www.virustotal.com/gui/file/7dcd1d08ea6004e6956eebf9963cfa31eac7b4c3544802bdc645a76dd1050b34/detection) is the VirusTotal link for the installer. Feel free to upload it yourself to scan if you feel more comfortable.
+
 ---
 
 ## Features
