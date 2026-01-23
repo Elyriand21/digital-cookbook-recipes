@@ -43,8 +43,8 @@ You should see a summary of all recipes downloaded and parsed from the GitHub re
 # TO-DO List
 
 ## Core Functionality
-- [ ] Create Desktop GUI application to view recipes
-- [ ] Generate executable to simplify requirements
+- [X] Create Desktop GUI application to view recipes
+- [X] Generate executable to simplify requirements
 - [X] Add caching to limit API calls
 - [X] Add search function to find recipes by title, tags, or ingredients
 - [X] Implement updating the user if recipes have been added/removed/updated from the repository
@@ -57,17 +57,14 @@ You should see a summary of all recipes downloaded and parsed from the GitHub re
 - [ ] Integrate search into GUI
 
 ## GUI
-- [ ] Desktop GUI for viewing recipes (already included above)
 - [ ] GUI for recipe editing and adding
-- [ ] GUI notifications for updates/removals
+- [X] GUI notifications for updates/removals
 
 ## Distribution
-- [ ] Build executable / installer (already included above)
 - [ ] Cross-platform support
 
 ## Enhancements / Optional
 - [ ] Track exactly which recipes changed (per-recipe SHA tracking)
 - [ ] Show “last updated” timestamp
-- [ ] Track added, removed, or modified recipes in a summary
 - [ ] Nutrition info or recipe tags
 - [ ] Optimize GitHub API usage
