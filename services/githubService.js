@@ -35,3 +35,15 @@ export async function fetchRecipeFiles() {
 
     return recipes;
 }
+
+export async function getLatestRepoSha() {
+    const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/commits/main`; // use actual default branch
+
+    const res = await fetch(apiUrl);
+    if (!res.ok) {
+        throw new Error(`GitHub API failed: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    return data.sha; // returns the SHA of the latest commit
+}
