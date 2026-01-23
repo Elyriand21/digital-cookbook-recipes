@@ -43,6 +43,7 @@ You should see a summary of all recipes downloaded and parsed from the GitHub re
 * [ ] Generate executable to simplify requirements
 * [X] Add caching to limit API calls
 * [X] Add search function to find recipes by title, tags, or ingredients
+* [X] Implement updating the user if recipes have been added/removed/updated from the repository 
 * [ ] Implement local recipe editing and saving, not allowing overwriting of original files
 * [ ] Add functionality to upload new recipes to a submission repository for review
 * [ ] Implement user authentication for recipe submission
