@@ -30,6 +30,7 @@
   "build": {
     "appId": "com.zero.digitalcookbook",
     "productName": "Zero's Cookbook",
+    "icon": "assets/cookbookIcon.ico",
     "directories": {
       "output": "dist"
     },

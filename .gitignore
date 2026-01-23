@@ -372,6 +372,7 @@ node_modules/
 # Electron build output
 dist/
 build/
+assets/
 
 # Electron cache / tooling
 .electron/
