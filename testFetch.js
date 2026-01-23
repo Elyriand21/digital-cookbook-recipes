@@ -1,11 +1,15 @@
-﻿import { fetchRecipeFiles, getLatestRepoSha } from "./services/githubService.js";
+﻿import { fetchRecipeFiles } from "./services/githubService.js";
 import { parseRecipe } from "./parsers/recipeParser.js";
 import {
     loadRecipesFromCache,
     saveRecipesLocally
 } from "./services/storageService.js";
-
+import fetch from "node-fetch"; // make sure to import fetch
 import readline from "readline";
+
+const OWNER = "YOUR_GITHUB_USERNAME"; // replace
+const REPO = "YOUR_REPO_NAME";        // replace
+const RECIPES_PATH = "recipes";       // folder name in repo
 
 // Helper to ask user a question in terminal
 function askUser(question) {
@@ -19,26 +23,37 @@ function askUser(question) {
     }));
 }
 
+// Get the SHA of the recipes folder from GitHub
+async function getRecipesFolderSha() {
+    const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${RECIPES_PATH}`;
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error(`GitHub API failed: ${res.status}`);
+    const data = await res.json();
+    return data.sha; // folder SHA
+}
+
 export async function getRecipes() {
     const cache = loadRecipesFromCache();
-    let liveSha;
+    let liveFolderSha;
 
-    // Attempt to fetch the latest GitHub SHA
+    // Get latest recipes folder SHA
     try {
-        liveSha = await getLatestRepoSha();
+        liveFolderSha = await getRecipesFolderSha();
     } catch (err) {
-        console.warn("⚠ Unable to fetch latest repo SHA. Will use cached recipes if available.");
+        console.warn("⚠ Unable to fetch recipes folder SHA. Using cached recipes if available.");
         if (cache && cache.recipes) return cache.recipes;
-        liveSha = null;
+        liveFolderSha = null;
     }
 
-    // Compare SHA if cache exists
-    if (cache && cache.meta && cache.meta.repoSha && liveSha) {
-        if (cache.meta.repoSha === liveSha) {
-            console.log("✔ Cache is up-to-date, using cached recipes");
+    // Compare cached folder SHA
+    if (cache && cache.meta && cache.meta.folderSha && liveFolderSha) {
+        if (cache.meta.folderSha === liveFolderSha) {
+            console.log("✔ Recipes folder unchanged. Using cached recipes.");
             return cache.recipes;
         } else {
-            console.log("🌐 New or updated recipes detected!");
+            console.log("🌐 Recipes folder changed!");
+
+            // Prompt user to fetch updated recipes
             const answer = await askUser("Do you want to fetch the latest recipes? (y/n) ");
             if (answer.toLowerCase() !== "y") {
                 console.log("✔ Using old cached recipes.");
@@ -46,7 +61,7 @@ export async function getRecipes() {
             }
         }
     } else if (cache) {
-        console.log("⚠ Cache exists but has no SHA metadata. Will fetch latest recipes...");
+        console.log("⚠ Cache exists but has no folder SHA. Will fetch recipes...");
     } else {
         console.log("🌐 No cache found, fetching recipes from GitHub...");
     }
@@ -67,7 +82,7 @@ export async function getRecipes() {
     }
     console.log(`✔ ${recipes.length} recipes parsed`);
 
-    // Detect removed recipes if cache exists
+    // Detect removed recipes
     if (cache && cache.recipes) {
         const oldIds = cache.recipes.map(r => r.id);
         const newIds = recipes.map(r => r.id);
@@ -79,13 +94,13 @@ export async function getRecipes() {
             );
             if (answer.toLowerCase() !== "y") {
                 console.log("✔ Keeping old cached recipes.");
-                return cache.recipes; // Keep old recipes
+                return cache.recipes;
             }
         }
     }
 
-    // Save new recipes + SHA to cache
-    saveRecipesLocally(recipes, liveSha);
+    // Save new recipes + folder SHA to cache
+    saveRecipesLocally(recipes, liveFolderSha);
     console.log("✔ Recipes cached locally");
 
     return recipes;
