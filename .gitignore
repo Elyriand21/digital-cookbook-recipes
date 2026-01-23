@@ -361,3 +361,21 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# ==========================
+# Electron / Node additions
+# ==========================
+
+# Node dependencies (already present but keep explicit)
+node_modules/
+
+# Electron build output
+dist/
+build/
+
+# Electron cache / tooling
+.electron/
+.electron-builder/
+
+# Local app data (your recipe cache)
+.digitalcookbook/

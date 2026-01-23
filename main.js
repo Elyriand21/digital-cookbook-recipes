@@ -1,4 +1,4 @@
-﻿import { app, BrowserWindow, ipcMain } from "electron";
+﻿import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import path from "path";
 import fetch from "node-fetch";
 import fs from "fs";
@@ -121,6 +121,9 @@ function createWindow() {
 
     win.loadFile(path.join(__dirname, "gui", "index.html"));
 }
+
+// Remove the menu at the top of the window
+//Menu.setApplicationMenu(null)
 
 app.whenReady().then(createWindow);
 

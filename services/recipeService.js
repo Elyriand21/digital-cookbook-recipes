@@ -57,9 +57,6 @@ export async function getRecipesForGUI(logCallback = console.log) {
 
 // Helper function to fetch folder SHA from GitHub
 async function getRecipesFolderSha() {
-    // Import GitHub config from githubService
-    // Assuming githubService.js already has OWNER, REPO, RECIPES_PATH exported
-    // Or hardcode here if needed:
     const OWNER = "Elyriand21";
     const REPO = "digital-cookbook-recipes";
     const RECIPES_PATH = "recipes";
