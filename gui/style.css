@@ -1,125 +1,63 @@
-/* Reset default browser styles */
-* {
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Body styling */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f7f7f7;
+    background-color: #fdf6e3;
     color: #333;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
 }
 
-/* Top bar with banner, search, and refresh */
 #top-bar {
-    background-color: #4a90e2;
-    color: white;
-    padding: 1rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    padding: 1rem;
+    background-color: #2a9d8f;
+    color: #fff;
+    gap: 0.5rem;
 }
 
-#banner {
-    font-size: 1.8rem;
-    font-weight: bold;
-    flex: 1;
-}
-
-#searchBox {
-    padding: 0.5rem;
-    border-radius: 5px;
-    border: none;
-    width: 200px;
-}
-
-#refreshBtn {
-    padding: 0.5rem 1rem;
-    background-color: white;
-    color: #4a90e2;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-    #refreshBtn:hover {
-        background-color: #e6e6e6;
+    #top-bar h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        flex-grow: 1;
     }
 
-/* Recipe list */
+    #top-bar input, #top-bar button {
+        padding: 0.5rem;
+        font-size: 1rem;
+        border-radius: 0.3rem;
+        border: none;
+    }
+
+    #top-bar input {
+        flex: 1;
+    }
+
+    #top-bar button {
+        background-color: #e76f51;
+        color: #fff;
+        cursor: pointer;
+    }
+
+        #top-bar button:hover {
+            background-color: #f28482;
+        }
+
 #recipeListPanel {
-    list-style: none;
-    overflow-y: auto;
-    flex: 1;
+    list-style-type: none;
     padding: 1rem;
 }
 
     #recipeListPanel li {
-        padding: 0.5rem 1rem;
-        margin-bottom: 0.5rem;
-        background-color: white;
-        border-radius: 5px;
+        padding: 0.5rem;
+        margin-bottom: 0.3rem;
+        border-bottom: 1px solid #ccc;
         cursor: pointer;
-        transition: background-color 0.2s;
     }
 
         #recipeListPanel li:hover {
-            background-color: #e6f0ff;
+            background-color: #e0f2f1;
         }
 
-/* Recipe details panel */
 #recipeDetailsPanel {
     padding: 1rem;
-    flex: 1;
-    overflow-y: auto;
-}
-
-    #recipeDetailsPanel h2.title {
-        margin-bottom: 1rem;
-    }
-
-    #recipeDetailsPanel pre {
-        background-color: #f0f0f0;
-        padding: 0.8rem;
-        border-radius: 5px;
-        white-space: pre-wrap;
-        margin-bottom: 1rem;
-    }
-
-#backBtn {
-    padding: 0.5rem 1rem;
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-    #backBtn:hover {
-        background-color: #357ab8;
-    }
-
-/* Hide log panel since logs go to terminal only */
-#logPanel {
-    display: none;
-}
-
-/* Make top bar sticky and recipe/details panels scrollable */
-#top-bar {
-    flex-shrink: 0;
-}
-
-#recipeListPanel,
-#recipeDetailsPanel {
-    flex-grow: 1;
-    overflow-y: auto;
 }

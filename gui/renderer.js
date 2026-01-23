@@ -1,5 +1,4 @@
 ﻿document.addEventListener("DOMContentLoaded", async () => {
-    // --- Elements ---
     const recipeListPanel = document.getElementById("recipeListPanel");
     const recipeDetailsPanel = document.getElementById("recipeDetailsPanel");
     const titleEl = recipeDetailsPanel.querySelector(".title");
@@ -8,51 +7,44 @@
     const backBtn = document.getElementById("backBtn");
     const searchBox = document.getElementById("searchBox");
     const refreshBtn = document.getElementById("refreshBtn");
+    const clearCacheBtn = document.getElementById("clearCacheBtn");
 
     let allRecipes = [];
 
-    // --- Logging helper: only terminal ---
-    function log(msg) {
-        console.log(msg);
-    }
+    // --- Terminal logging only
+    const log = console.log;
 
-    // --- Show recipe details ---
+    // --- Show details
     function showRecipeDetails(recipe) {
-        log(`📝 Showing recipe: ${recipe.title}`);
-
         recipeListPanel.style.display = "none";
         recipeDetailsPanel.style.display = "block";
 
-        titleEl.textContent = recipe.title;
-        ingredientsEl.textContent = recipe.ingredients.join("\n");
-        instructionsEl.textContent = recipe.instructions.join("\n");
+        titleEl.textContent = recipe.title || recipe.filename;
+        ingredientsEl.textContent = recipe.ingredients?.join("\n") || "";
+        instructionsEl.textContent = recipe.instructions?.join("\n") || "";
     }
 
-    // --- Populate recipe list ---
+    // --- Populate recipe list
     function populateRecipeList(recipes) {
-        log(`📋 Populating recipe list with ${recipes.length} recipe(s)`);
         recipeListPanel.innerHTML = "";
-
         recipes.forEach(recipe => {
             const li = document.createElement("li");
-            li.textContent = recipe.title || recipe.filename; // <-- use title from parser
+            li.textContent = recipe.title || recipe.filename;
             li.addEventListener("click", () => showRecipeDetails(recipe));
             recipeListPanel.appendChild(li);
-            log(`✅ Loaded recipe into list: ${recipe.title}`);
         });
-
         if (recipes.length === 0) {
             recipeListPanel.innerHTML = "<li>No recipes available.</li>";
         }
     }
 
-    // --- Back button ---
+    // --- Back button
     backBtn.addEventListener("click", () => {
         recipeDetailsPanel.style.display = "none";
         recipeListPanel.style.display = "block";
     });
 
-    // --- Search box ---
+    // --- Search
     searchBox.addEventListener("input", () => {
         const query = searchBox.value.trim().toLowerCase();
         const filtered = allRecipes.filter(recipe =>
@@ -63,25 +55,32 @@
         populateRecipeList(filtered);
     });
 
-    // --- Refresh button ---
+    // --- Refresh
     refreshBtn.addEventListener("click", async () => {
         log("🔄 Refreshing recipes...");
-        try {
-            allRecipes = await window.api.getRecipes();
-            populateRecipeList(allRecipes);
-            log(`✔ Refresh complete. ${allRecipes.length} recipe(s) available`);
-        } catch (err) {
-            log(`❌ Error refreshing recipes: ${err.message}`);
-        }
+        allRecipes = await window.api.getRecipes();
+        populateRecipeList(allRecipes);
+        log(`✔ Refresh complete. ${allRecipes.length} recipe(s) available`);
     });
 
-    // --- Initialize cookbook ---
-    log("⏳ Initializing cookbook...");
-    try {
+    // --- Clear Cache with confirmation
+    clearCacheBtn.addEventListener("click", async () => {
+        const confirmed = confirm("⚠ Are you sure you want to delete the local cache? This will force recipes to re-fetch from GitHub.");
+        if (!confirmed) return;
+
+        log("🗑 Clearing local cache...");
+        const result = await window.api.clearCache();
+        log(result.message);
+
+        // Reload recipes
         allRecipes = await window.api.getRecipes();
-        log(`✔ ${allRecipes.length} recipes loaded`);
         populateRecipeList(allRecipes);
-    } catch (err) {
-        log(`❌ Error loading recipes: ${err.message}`);
-    }
+        log(`✔ Reloaded ${allRecipes.length} recipes`);
+    });
+
+    // --- Initialize cookbook
+    log("⏳ Initializing cookbook...");
+    allRecipes = await window.api.getRecipes();
+    log(`✔ ${allRecipes.length} recipes loaded`);
+    populateRecipeList(allRecipes);
 });

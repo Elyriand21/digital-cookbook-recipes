@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Zero's Open-Source Cookbook</title>
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top bar: banner + search + refresh -->
     <div id="top-bar">
         <h1 id="banner">Zero's Open-Source Cookbook</h1>
         <input type="text" id="searchBox" placeholder="Search recipes...">
         <button id="refreshBtn">Refresh Recipes</button>
+        <button id="clearCacheBtn">Clear Cache</button>
     </div>
 
-    <!-- Recipe List Panel -->
+    <!-- Recipe List -->
     <ul id="recipeListPanel"></ul>
 
-    <!-- Recipe Details Panel -->
+    <!-- Recipe Details -->
     <div id="recipeDetailsPanel" style="display:none;">
         <h2 class="title"></h2>
         <h3>Ingredients</h3>
@@ -25,9 +25,6 @@
         <pre class="instructions"></pre>
         <button id="backBtn">Back</button>
     </div>
-
-    <!-- Log Panel: terminal-only, we can hide this if you want -->
-    <pre id="logPanel" style="display:none;"></pre>
 
     <script type="module" src="./renderer.js"></script>
 </body>

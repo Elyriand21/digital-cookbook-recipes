@@ -1,21 +1,17 @@
 ﻿import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import fetch from "node-fetch";
-import { fileURLToPath } from "url";
-import { parseRecipe } from "./parsers/recipeParser.js";
 import fs from "fs";
 import os from "os";
-
-// Paths for caching
-const CACHE_DIR = path.join(os.homedir(), ".digitalcookbook");
-const CACHE_FILE = path.join(CACHE_DIR, "recipes.json");
+import { fileURLToPath } from "url";
+import { parseRecipe } from "./parsers/recipeParser.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log("Electron version:", process.versions.electron);
-console.log("Node version:", process.versions.node);
-
+// Cache paths
+const CACHE_DIR = path.join(os.homedir(), ".digitalcookbook");
+const CACHE_FILE = path.join(CACHE_DIR, "recipes.json");
 
 // GitHub config
 const OWNER = "Elyriand21";
@@ -23,7 +19,7 @@ const REPO = "digital-cookbook-recipes";
 const RECIPES_PATH = "recipes";
 
 // ------------------
-// Helper: fetch recipes from GitHub
+// Fetch recipes from GitHub
 // ------------------
 async function fetchRecipesFromGitHub(log = console.log) {
     log("⏳ Fetching recipes from GitHub...");
@@ -39,23 +35,20 @@ async function fetchRecipesFromGitHub(log = console.log) {
         try {
             const fileRes = await fetch(file.download_url);
             const content = await fileRes.text();
-
-            // Parse markdown into a recipe object
-            const parsedRecipe = parseRecipe(content);
-            recipes.push(parsedRecipe);
-
-            log(`✅ Fetched & parsed ${parsedRecipe.title}`);
+            // Parse markdown into recipe object
+            const recipe = parseRecipe(content);
+            recipes.push(recipe);
+            log(`✅ Parsed ${recipe.title}`);
         } catch (err) {
-            log(`⚠ Failed to fetch or parse ${file.name}: ${err.message}`);
+            log(`⚠ Failed to fetch/parse ${file.name}: ${err.message}`);
         }
     }
-
 
     return recipes;
 }
 
 // ------------------
-// Helper: load/save cache
+// Load/Save cache
 // ------------------
 function saveRecipesLocally(recipes) {
     fs.mkdirSync(CACHE_DIR, { recursive: true });
@@ -73,18 +66,15 @@ function loadRecipesFromCache() {
 }
 
 // ------------------
-// IPC handler
+// IPC handlers
 // ------------------
 ipcMain.handle("get-recipes", async (_, sendLog) => {
-    // sendLog: callback to GUI via renderer
-    const log = (msg) => sendLog?.(msg);
+    const log = (msg) => sendLog?.(msg) || console.log(msg);
 
     try {
-        // Try loading cache first
         const cache = loadRecipesFromCache();
         if (cache?.length) log(`✔ Loaded ${cache.length} recipes from cache`);
 
-        // Fetch live recipes
         const liveRecipes = await fetchRecipesFromGitHub(log);
         saveRecipesLocally(liveRecipes);
         log(`✔ Cached ${liveRecipes.length} recipes locally`);
@@ -92,8 +82,22 @@ ipcMain.handle("get-recipes", async (_, sendLog) => {
         return liveRecipes;
     } catch (err) {
         log(`❌ Error fetching recipes: ${err.message}`);
-        // fallback to cache
         return loadRecipesFromCache() || [];
+    }
+});
+
+ipcMain.handle("clear-cache", async () => {
+    try {
+        if (fs.existsSync(CACHE_FILE)) {
+            fs.unlinkSync(CACHE_FILE);
+            console.log("✔ Local cache cleared");
+            return { success: true, message: "Cache cleared." };
+        } else {
+            return { success: true, message: "No cache found." };
+        }
+    } catch (err) {
+        console.error("❌ Failed to clear cache:", err);
+        return { success: false, message: err.message };
     }
 });
 
@@ -101,22 +105,18 @@ ipcMain.handle("get-recipes", async (_, sendLog) => {
 // Create window
 // ------------------
 function createWindow() {
-    const preloadPath = path.resolve(__dirname, "preload.js");
-    console.log("Preload path is:", preloadPath);
-
     const win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
-            preload: preloadPath,
+            preload: path.join(__dirname, "preload.js"),
             contextIsolation: true,
             nodeIntegration: false
         }
     });
 
-    win.loadFile(path.join(__dirname, "gui", "index.html")); // <-- use __dirname
+    win.loadFile(path.join(__dirname, "gui", "index.html"));
 }
-
 
 app.whenReady().then(createWindow);
 
