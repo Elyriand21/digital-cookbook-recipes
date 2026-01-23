@@ -3,10 +3,21 @@ const { contextBridge, ipcRenderer } = require("electron");
 console.log("preload.js loaded!");
 
 contextBridge.exposeInMainWorld("api", {
-    getRecipes: async () => {
-        return await ipcRenderer.invoke("get-recipes");
-    },
-    clearCache: async () => {
-        return await ipcRenderer.invoke("clear-cache");
-    }
+    // Fetch recipes from main process
+    getRecipes: async () => await ipcRenderer.invoke("get-recipes"),
+
+    // Save updated recipes after user confirms
+    saveUpdatedRecipes: async (recipes, folderSha) =>
+        await ipcRenderer.invoke("save-updated-recipes", recipes, folderSha),
+
+    // Load cached recipes
+    loadCachedRecipes: async () =>
+        await ipcRenderer.invoke("load-cached-recipes"),
+
+    // Clear local cache
+    clearCache: async () =>
+        await ipcRenderer.invoke("clear-cache"),
+
+    // Optional: allow logging from renderer to main
+    log: (msg) => ipcRenderer.send("renderer-log", msg)
 });

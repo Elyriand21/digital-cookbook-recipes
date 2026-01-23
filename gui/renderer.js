@@ -18,28 +18,23 @@
     // --- Terminal logging only ---
     const log = console.log;
 
-    // --- Helper to show recipe details ---
+    // --- Show recipe details ---
     function showRecipeDetails(recipe) {
         recipeListPanel.style.display = "none";
         recipeDetailsPanel.style.display = "block";
 
-        // Title
         titleEl.textContent = recipe.title || recipe.filename;
-
-        // Metadata
         prepEl.textContent = recipe.prepTime ? `Prep: ${recipe.prepTime} min` : "";
         cookEl.textContent = recipe.cookTime ? `Cook: ${recipe.cookTime} min` : "";
         servingsEl.textContent = recipe.servings ? `Servings: ${recipe.servings}` : "";
 
-        // Ingredients & Instructions
         ingredientsEl.textContent = recipe.ingredients?.join("\n") || "";
         instructionsEl.textContent = recipe.instructions?.join("\n") || "";
     }
 
-    // --- Helper to populate recipe list ---
+    // --- Populate recipe list ---
     function populateRecipeList(recipes) {
         recipeListPanel.innerHTML = "";
-
         recipes.forEach(recipe => {
             const li = document.createElement("li");
             li.textContent = recipe.title || recipe.filename;
@@ -53,56 +48,13 @@
         }
     }
 
-    // --- Helper to find added/removed recipes ---
+    // --- Detect added or removed recipes ---
     function getRecipeDifferences(oldRecipes, newRecipes) {
         const oldIds = new Set(oldRecipes.map(r => r.id));
         const newIds = new Set(newRecipes.map(r => r.id));
-
         const added = newRecipes.filter(r => !oldIds.has(r.id));
         const removed = oldRecipes.filter(r => !newIds.has(r.id));
-
         return { added, removed };
-    }
-
-    // --- Format recipe list for display ---
-    function formatRecipeList(recipes) {
-        return recipes.map(r => `• ${r.title || r.filename}`).join("\n");
-    }
-
-    // --- Function to check for updates and optionally refresh ---
-    async function checkForUpdates() {
-        log("🔄 Checking for recipe updates...");
-
-        const cachedRecipes = allRecipes;
-        const liveRecipes = await window.api.getRecipes();
-        const { added, removed } = getRecipeDifferences(cachedRecipes, liveRecipes);
-
-        let proceed = true;
-        let message = "";
-
-        if (added.length && removed.length) {
-            message = `⚠ ${added.length} new recipe(s) added:\n${formatRecipeList(added)}\n\n` +
-                `⚠ ${removed.length} recipe(s) removed:\n${formatRecipeList(removed)}\n\n` +
-                "Do you want to update your recipe list?";
-        } else if (added.length) {
-            message = `✅ ${added.length} new recipe(s) added:\n${formatRecipeList(added)}\n\nDo you want to update your recipe list?`;
-        } else if (removed.length) {
-            message = `⚠ ${removed.length} recipe(s) were removed:\n${formatRecipeList(removed)}\n\nDo you want to update your recipe list?`;
-        } else {
-            alert("📋 Your recipes are up to date!");
-            proceed = false;
-        }
-
-        if (proceed) {
-            proceed = confirm(message);
-            if (proceed) {
-                allRecipes = liveRecipes;
-                populateRecipeList(allRecipes);
-                log(`✔ Recipe list updated. ${allRecipes.length} recipe(s) available`);
-            } else {
-                log("ℹ Recipe update canceled by user");
-            }
-        }
     }
 
     // --- Back button ---
@@ -123,7 +75,35 @@
     });
 
     // --- Refresh button ---
-    refreshBtn.addEventListener("click", checkForUpdates);
+    async function refreshRecipes() {
+        log("🔄 Checking for recipe updates...");
+        const cachedRecipes = allRecipes;
+        const liveRecipes = await window.api.getRecipes();
+        const { added, removed } = getRecipeDifferences(cachedRecipes, liveRecipes);
+
+        let proceed = true;
+
+        if (added.length && removed.length) {
+            proceed = confirm(`⚠ ${added.length} new recipe(s) added and ${removed.length} recipe(s) removed.\nDo you want to update your recipe list?`);
+        } else if (added.length) {
+            proceed = confirm(`✅ ${added.length} new recipe(s) added.\nDo you want to update your recipe list?`);
+        } else if (removed.length) {
+            proceed = confirm(`⚠ ${removed.length} recipe(s) were removed.\nDo you want to update your recipe list?`);
+        } else {
+            alert("📋 Your recipes are up to date!");
+            proceed = false;
+        }
+
+        if (proceed) {
+            allRecipes = liveRecipes;
+            populateRecipeList(allRecipes);
+            log(`✔ Recipe list updated. ${allRecipes.length} recipe(s) available`);
+        } else {
+            log("ℹ Recipe update canceled or no changes detected");
+        }
+    }
+
+    refreshBtn.addEventListener("click", refreshRecipes);
 
     // --- Clear cache button ---
     clearCacheBtn.addEventListener("click", async () => {
@@ -134,17 +114,34 @@
         const result = await window.api.clearCache();
         log(result.message);
 
+        // Reload recipes after cache clear
         allRecipes = await window.api.getRecipes();
         populateRecipeList(allRecipes);
         log(`✔ Reloaded ${allRecipes.length} recipes`);
     });
 
-    // --- Initialize cookbook and check updates immediately ---
+    // --- Initialize cookbook ---
     log("⏳ Initializing cookbook...");
+    const cachedRecipes = allRecipes;
     allRecipes = await window.api.getRecipes();
-    populateRecipeList(allRecipes);
-    log(`✔ Loaded ${allRecipes.length} recipes`);
+    const { added, removed } = getRecipeDifferences(cachedRecipes, allRecipes);
 
-    // Automatically check for updates on startup
-    await checkForUpdates();
+    let proceed = true;
+    if (added.length && removed.length) {
+        proceed = confirm(`⚠ ${added.length} new recipe(s) added and ${removed.length} recipe(s) removed.\nDo you want to update your recipe list?`);
+    } else if (added.length) {
+        proceed = confirm(`✅ ${added.length} new recipe(s) added.\nDo you want to update your recipe list?`);
+    } else if (removed.length) {
+        proceed = confirm(`⚠ ${removed.length} recipe(s) were removed.\nDo you want to update your recipe list?`);
+    } else {
+        proceed = false;
+    }
+
+    if (proceed) {
+        populateRecipeList(allRecipes);
+        log(`✔ Recipe list updated. ${allRecipes.length} recipe(s) available`);
+    } else {
+        populateRecipeList(cachedRecipes.length ? cachedRecipes : allRecipes);
+        log("ℹ Recipe list initialized without updates");
+    }
 });

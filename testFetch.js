@@ -29,7 +29,7 @@ async function getRecipesFolderSha() {
 }
 
 export async function getRecipes() {
-    const cache = loadRecipesFromCache();
+    const cache = loadRecipesFromCache() || { recipes: [], meta: {} };
     let liveFolderSha;
 
     // Get latest recipes folder SHA
@@ -37,69 +37,38 @@ export async function getRecipes() {
         liveFolderSha = await getRecipesFolderSha();
     } catch (err) {
         console.warn("⚠ Unable to fetch recipes folder SHA. Using cached recipes if available.");
-        if (cache && cache.recipes) return cache.recipes;
-        liveFolderSha = null;
-    }
-
-    // Compare cached folder SHA
-    if (cache && cache.meta && cache.meta.folderSha && liveFolderSha) {
-        if (cache.meta.folderSha === liveFolderSha) {
-            console.log("✔ Recipes folder unchanged. Using cached recipes.");
-            return cache.recipes;
-        } else {
-            console.log("🌐 Recipes folder changed!");
-
-            // Prompt user to fetch updated recipes
-            const answer = "y";
-            if (answer.toLowerCase() !== "y") {
-                console.log("✔ Using old cached recipes.");
-                return cache.recipes;
-            }
-        }
-    } else if (cache) {
-        console.log("⚠ Cache exists but has no folder SHA. Will fetch recipes...");
-    } else {
-        console.log("🌐 No cache found, fetching recipes from GitHub...");
+        return { recipes: cache.recipes, added: [], removed: [], folderChanged: false };
     }
 
     // Fetch recipe files from GitHub
     const files = await fetchRecipeFiles();
 
-    // Parse recipes and skip invalid ones
+    // Parse recipes
     const recipes = [];
     for (const f of files) {
         try {
-            const recipe = parseRecipe(f.content);
-            recipes.push(recipe);
+            recipes.push(parseRecipe(f.content));
         } catch (err) {
             console.warn(`⚠ Skipping invalid recipe: ${f.filename}`);
-            console.warn(err.message);
-        }
-    }
-    console.log(`✔ ${recipes.length} recipes parsed`);
-
-    // Detect removed recipes
-    if (cache && cache.recipes) {
-        const oldIds = cache.recipes.map(r => r.id);
-        const newIds = recipes.map(r => r.id);
-        const removed = oldIds.filter(id => !newIds.includes(id));
-
-        if (removed.length > 0) {
-            const answer = await askUser(
-                `⚠ The following recipes were removed: ${removed.join(", ")}. Update to the new recipe list? (y/n) `
-            );
-            if (answer.toLowerCase() !== "y") {
-                console.log("✔ Keeping old cached recipes.");
-                return cache.recipes;
-            }
         }
     }
 
-    // Save new recipes + folder SHA to cache
-    saveRecipesLocally(recipes, liveFolderSha);
-    console.log("✔ Recipes cached locally");
+    // Compare old vs new
+    const oldIds = new Set(cache.recipes.map(r => r.id));
+    const newIds = new Set(recipes.map(r => r.id));
 
-    return recipes;
+    const added = recipes.filter(r => !oldIds.has(r.id));
+    const removed = cache.recipes.filter(r => !newIds.has(r.id));
+
+    const folderChanged = cache.meta?.folderSha !== liveFolderSha;
+
+    // Return everything for GUI to handle
+    return { recipes, added, removed, folderChanged, liveFolderSha };
+}
+
+// Function to save recipes after user confirms
+export function saveUpdatedRecipes(recipes, folderSha) {
+    saveRecipesLocally(recipes, folderSha);
 }
 
 async function main() {
