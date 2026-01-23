@@ -1,13 +1,13 @@
 ﻿import { fetchRecipeFiles, getLatestRepoSha } from "./services/githubService.js";
 import { parseRecipe } from "./parsers/recipeParser.js";
-import readline from "readline";
 import {
     loadRecipesFromCache,
-    saveRecipesLocally,
-    cacheExists
+    saveRecipesLocally
 } from "./services/storageService.js";
 
-// Helper function to ask user a question in the terminal
+import readline from "readline";
+
+// Helper to ask user a question in terminal
 function askUser(question) {
     const rl = readline.createInterface({
         input: process.stdin,
@@ -20,50 +20,42 @@ function askUser(question) {
 }
 
 export async function getRecipes() {
-
     const cache = loadRecipesFromCache();
+    let liveSha;
 
-    // Check if cache exists and has SHA
-    if (cache && cache.meta && cache.meta.repoSha) {
-        try {
-            // Fetch latest commit SHA from GitHub
-            const liveSha = await getLatestRepoSha();
+    // Step 1: Attempt to fetch the latest GitHub SHA
+    try {
+        liveSha = await getLatestRepoSha();
+    } catch (err) {
+        console.warn("⚠ Unable to fetch latest repo SHA. Will use cached recipes if available.");
+        if (cache && cache.recipes) return cache.recipes;
+        liveSha = null;
+    }
 
-            // Compare SHAs
-            if (cache.meta.repoSha === liveSha) {
-                console.log("✔ Cache is up-to-date, using cached recipes");
+    // Step 2: Compare SHA if cache exists
+    if (cache && cache.meta && cache.meta.repoSha && liveSha) {
+        if (cache.meta.repoSha === liveSha) {
+            console.log("✔ Cache is up-to-date, using cached recipes");
+            return cache.recipes;
+        } else {
+            console.log("🌐 New or updated recipes detected!");
+            const answer = await askUser("Do you want to fetch the latest recipes? (y/n) ");
+            if (answer.toLowerCase() !== "y") {
+                console.log("✔ Using old cached recipes.");
                 return cache.recipes;
-            } else {
-                console.log("🌐 New recipes detected!");
-
-                // Prompt user whether to refresh cache
-                const answer = await askUser("Do you want to fetch the latest recipes? (y/n) ");
-                if (answer.toLowerCase() !== "y") {
-                    console.log("✔ Using old cached recipes.");
-                    return cache.recipes;
-                }
-
-                console.log("🌐 Fetching latest recipes...");
             }
-        } catch (err) {
-            console.warn("⚠ Unable to fetch latest repo SHA. Using cached recipes.");
-            return cache.recipes; // fallback if offline or API fails
         }
     } else if (cache) {
-        // Cache exists but has no SHA (old format)
-        console.log("⚠ Cache has no SHA metadata. Will fetch latest recipes...");
+        console.log("⚠ Cache exists but has no SHA metadata. Will fetch latest recipes...");
     } else {
-        // No cache at all
         console.log("🌐 No cache found, fetching recipes from GitHub...");
     }
 
-    // Fetch recipe files from GitHub
-    console.log("🌐 Fetching recipes from GitHub...");
+    // Step 3: Fetch recipe files from GitHub
     const files = await fetchRecipeFiles();
 
-    // Parse recipes and skip invalid ones
+    // Step 4: Parse recipes and skip invalid ones
     const recipes = [];
-
     for (const f of files) {
         try {
             const recipe = parseRecipe(f.content);
@@ -73,24 +65,33 @@ export async function getRecipes() {
             console.warn(err.message);
         }
     }
-
     console.log(`✔ ${recipes.length} recipes parsed`);
 
-    // Fetch latest SHA for cache (if we didn’t already have it)
-    let shaToCache;
-    try {
-        shaToCache = await getLatestRepoSha();
-    } catch (err) {
-        console.warn("⚠ Unable to fetch SHA for cache. Will save recipes without SHA.");
-        shaToCache = null;
+    // Step 5: Detect removed recipes if cache exists
+    if (cache && cache.recipes) {
+        const oldIds = cache.recipes.map(r => r.id);
+        const newIds = recipes.map(r => r.id);
+        const removed = oldIds.filter(id => !newIds.includes(id));
+
+        if (removed.length > 0) {
+            const answer = await askUser(
+                `⚠ The following recipes were removed: ${removed.join(", ")}. Update to the new recipe list? (y/n) `
+            );
+            if (answer.toLowerCase() !== "y") {
+                console.log("✔ Keeping old cached recipes.");
+                return cache.recipes; // Keep old recipes
+            }
+        }
     }
 
-    // Save recipes + SHA to cache
-    saveRecipesLocally(recipes, shaToCache);
+    // Step 6: Save new recipes + SHA to cache
+    saveRecipesLocally(recipes, liveSha);
     console.log("✔ Recipes cached locally");
 
     return recipes;
 }
+
+// ------------------- Main CLI -------------------
 
 async function main() {
     const recipes = await getRecipes();
