@@ -37,7 +37,10 @@ node testFetch.js
 
 You should see a summary of all recipes downloaded and parsed from the GitHub repository.
 
-# Digital Cookbook Project - TO-DO List
+
+
+
+# TO-DO List
 
 ## Core Functionality
 - [ ] Create Desktop GUI application to view recipes
