@@ -61,3 +61,16 @@ body {
 #recipeDetailsPanel {
     padding: 1rem;
 }
+
+/* --- Metadata for recipe details (prep, cook, servings) --- */
+.meta {
+    display: flex;
+    flex-direction: column; /* stack vertically */
+    font-size: 0.9rem;
+    color: #555;
+    margin: 0.5rem 0 1rem 0; /* spacing above and below */
+}
+
+    .meta span {
+        margin: 2px 0; /* vertical spacing between items */
+    }
