@@ -15,7 +15,7 @@ servings: 8
 - 3 cloves garlic, minced
 - 1/2 tsp red pepper flakes (or to taste)
 - 1 tsp sesame seeds (optional garnish)
-	These ingredients are for the sauce:
+	The following ingredients are for the sauce:
 - 1/2 cup cold water
 - 5 tbsp low sodium soy sauce
 - 3 tbsp rice vinegar (or more to taste)

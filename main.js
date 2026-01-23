@@ -90,9 +90,10 @@ ipcMain.handle("clear-cache", async () => {
     try {
         if (fs.existsSync(CACHE_FILE)) {
             fs.unlinkSync(CACHE_FILE);
-            console.log("✔ Local cache cleared");
+            console.log("✔ Local cache cleared:", CACHE_FILE);
             return { success: true, message: "Cache cleared." };
         } else {
+            console.log("⚠ No cache file to clear:", CACHE_FILE);
             return { success: true, message: "No cache found." };
         }
     } catch (err) {
@@ -100,6 +101,7 @@ ipcMain.handle("clear-cache", async () => {
         return { success: false, message: err.message };
     }
 });
+
 
 // ------------------
 // Create window
