@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Digital Cookbook</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="top-bar">
+        <input type="text" id="searchBox" placeholder="Search recipes...">
+        <button id="refreshBtn">Refresh Recipes</button>
+    </div>
+
+    <!-- Recipe List -->
+    <ul id="recipeListPanel"></ul>
+
+    <!-- Recipe Details -->
+    <div id="recipeDetailsPanel" style="display:none;">
+        <h2 class="title"></h2>
+        <h3>Ingredients</h3>
+        <pre class="ingredients"></pre>
+        <h3>Instructions</h3>
+        <pre class="instructions"></pre>
+        <button id="backBtn">Back</button>
+    </div>
+
+    <script type="module" src="renderer.js"></script>
+</body>
+</html>

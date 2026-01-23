@@ -2,12 +2,15 @@
   "name": "digital-cookbook-core",
   "version": "1.0.0",
   "type": "module",
-  "main": "testFetch.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node testFetch.js"
+    "start": "electron ."
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "electron": "^40.0.0"
   }
 }

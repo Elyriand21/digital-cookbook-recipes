@@ -4,12 +4,8 @@ import {
     loadRecipesFromCache,
     saveRecipesLocally
 } from "./services/storageService.js";
-import fetch from "node-fetch"; // make sure to import fetch
+import fetch from "node-fetch";
 import readline from "readline";
-
-const OWNER = "YOUR_GITHUB_USERNAME"; // replace
-const REPO = "YOUR_REPO_NAME";        // replace
-const RECIPES_PATH = "recipes";       // folder name in repo
 
 // Helper to ask user a question in terminal
 function askUser(question) {
