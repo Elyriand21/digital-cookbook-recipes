@@ -48,7 +48,7 @@ async function fetchRecipesFromGitHub(log = console.log) {
 }
 
 // ------------------
-// Load/Save cache
+// Load/Save cache (always store parsed recipes)
 // ------------------
 function saveRecipesLocally(recipes) {
     fs.mkdirSync(CACHE_DIR, { recursive: true });
@@ -59,7 +59,8 @@ function loadRecipesFromCache() {
     if (!fs.existsSync(CACHE_FILE)) return null;
     const data = fs.readFileSync(CACHE_FILE, "utf-8");
     try {
-        return JSON.parse(data).recipes || [];
+        const parsed = JSON.parse(data).recipes || [];
+        return parsed;
     } catch {
         return null;
     }
@@ -72,9 +73,11 @@ ipcMain.handle("get-recipes", async (_, sendLog) => {
     const log = (msg) => sendLog?.(msg) || console.log(msg);
 
     try {
-        const cache = loadRecipesFromCache();
-        if (cache?.length) log(`✔ Loaded ${cache.length} recipes from cache`);
+        // Load from cache first
+        const cachedRecipes = loadRecipesFromCache();
+        if (cachedRecipes?.length) log(`✔ Loaded ${cachedRecipes.length} recipes from cache`);
 
+        // Fetch live recipes from GitHub
         const liveRecipes = await fetchRecipesFromGitHub(log);
         saveRecipesLocally(liveRecipes);
         log(`✔ Cached ${liveRecipes.length} recipes locally`);
@@ -101,7 +104,6 @@ ipcMain.handle("clear-cache", async () => {
         return { success: false, message: err.message };
     }
 });
-
 
 // ------------------
 // Create window

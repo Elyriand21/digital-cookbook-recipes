@@ -19,9 +19,9 @@
         recipeListPanel.style.display = "none";
         recipeDetailsPanel.style.display = "block";
 
-        titleEl.textContent = recipe.title || recipe.filename;
-        ingredientsEl.textContent = recipe.ingredients?.join("\n") || "";
-        instructionsEl.textContent = recipe.instructions?.join("\n") || "";
+        titleEl.textContent = recipe.title;
+        ingredientsEl.textContent = recipe.ingredients.join("\n");
+        instructionsEl.textContent = recipe.instructions.join("\n");
     }
 
     // --- Populate recipe list
@@ -29,9 +29,10 @@
         recipeListPanel.innerHTML = "";
         recipes.forEach(recipe => {
             const li = document.createElement("li");
-            li.textContent = recipe.title || recipe.filename;
+            li.textContent = recipe.title;
             li.addEventListener("click", () => showRecipeDetails(recipe));
             recipeListPanel.appendChild(li);
+            log(`✅ Loaded recipe: ${recipe.title}`);
         });
         if (recipes.length === 0) {
             recipeListPanel.innerHTML = "<li>No recipes available.</li>";
@@ -48,9 +49,9 @@
     searchBox.addEventListener("input", () => {
         const query = searchBox.value.trim().toLowerCase();
         const filtered = allRecipes.filter(recipe =>
-            (recipe.title?.toLowerCase().includes(query)) ||
-            (recipe.tags?.some(tag => tag.toLowerCase().includes(query))) ||
-            (recipe.ingredients?.some(i => i.toLowerCase().includes(query)))
+            recipe.title.toLowerCase().includes(query) ||
+            recipe.tags.some(tag => tag.toLowerCase().includes(query)) ||
+            recipe.ingredients.some(i => i.toLowerCase().includes(query))
         );
         populateRecipeList(filtered);
     });
@@ -60,19 +61,18 @@
         log("🔄 Refreshing recipes...");
         allRecipes = await window.api.getRecipes();
         populateRecipeList(allRecipes);
-        log(`✔ Refresh complete. ${allRecipes.length} recipe(s) available`);
+        log(`✔ Refresh complete. ${allRecipes.length} recipes`);
     });
 
-    // --- Clear Cache with confirmation
+    // --- Clear Cache
     clearCacheBtn.addEventListener("click", async () => {
-        const confirmed = confirm("⚠ Are you sure you want to delete the local cache? This will force recipes to re-fetch from GitHub.");
+        const confirmed = confirm("⚠ Are you sure you want to delete local cache? Recipes will be re-fetched.");
         if (!confirmed) return;
 
         log("🗑 Clearing local cache...");
         const result = await window.api.clearCache();
         log(result.message);
 
-        // Reload recipes
         allRecipes = await window.api.getRecipes();
         populateRecipeList(allRecipes);
         log(`✔ Reloaded ${allRecipes.length} recipes`);
@@ -81,6 +81,6 @@
     // --- Initialize cookbook
     log("⏳ Initializing cookbook...");
     allRecipes = await window.api.getRecipes();
-    log(`✔ ${allRecipes.length} recipes loaded`);
     populateRecipeList(allRecipes);
+    log(`✔ Loaded ${allRecipes.length} recipes`);
 });

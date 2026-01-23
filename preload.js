@@ -1,4 +1,3 @@
-// preload.js
 const { contextBridge, ipcRenderer } = require("electron");
 
 console.log("preload.js loaded!");
@@ -9,8 +8,5 @@ contextBridge.exposeInMainWorld("api", {
     },
     clearCache: async () => {
         return await ipcRenderer.invoke("clear-cache");
-    },
-    onLog: (callback) => {
-        ipcRenderer.on("log", (_, msg) => callback(msg));
     }
 });
