@@ -23,7 +23,7 @@ export async function getRecipes() {
     const cache = loadRecipesFromCache();
     let liveSha;
 
-    // Step 1: Attempt to fetch the latest GitHub SHA
+    // Attempt to fetch the latest GitHub SHA
     try {
         liveSha = await getLatestRepoSha();
     } catch (err) {
@@ -32,7 +32,7 @@ export async function getRecipes() {
         liveSha = null;
     }
 
-    // Step 2: Compare SHA if cache exists
+    // Compare SHA if cache exists
     if (cache && cache.meta && cache.meta.repoSha && liveSha) {
         if (cache.meta.repoSha === liveSha) {
             console.log("✔ Cache is up-to-date, using cached recipes");
@@ -51,10 +51,10 @@ export async function getRecipes() {
         console.log("🌐 No cache found, fetching recipes from GitHub...");
     }
 
-    // Step 3: Fetch recipe files from GitHub
+    // Fetch recipe files from GitHub
     const files = await fetchRecipeFiles();
 
-    // Step 4: Parse recipes and skip invalid ones
+    // Parse recipes and skip invalid ones
     const recipes = [];
     for (const f of files) {
         try {
@@ -67,7 +67,7 @@ export async function getRecipes() {
     }
     console.log(`✔ ${recipes.length} recipes parsed`);
 
-    // Step 5: Detect removed recipes if cache exists
+    // Detect removed recipes if cache exists
     if (cache && cache.recipes) {
         const oldIds = cache.recipes.map(r => r.id);
         const newIds = recipes.map(r => r.id);
@@ -84,14 +84,12 @@ export async function getRecipes() {
         }
     }
 
-    // Step 6: Save new recipes + SHA to cache
+    // Save new recipes + SHA to cache
     saveRecipesLocally(recipes, liveSha);
     console.log("✔ Recipes cached locally");
 
     return recipes;
 }
-
-// ------------------- Main CLI -------------------
 
 async function main() {
     const recipes = await getRecipes();
