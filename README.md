@@ -2,8 +2,6 @@
 
 **Zero's Cookbook** is an open-source desktop application that makes it easy to browse, search, and view recipes fetched directly from GitHub. Recipes are cached locally for fast access, and the app notifies you whenever new recipes are added or existing recipes are removed.
 
-![Zero's Cookbook Screenshot](assets/cookbookIcon.ico)
-
 ---
 
 ## Features
