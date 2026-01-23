@@ -6,11 +6,6 @@ import {
     cacheExists
 } from "./services/storageService.js";
 
-/**
- * Load recipes using cache-first strategy
- * - If cache exists → load from disk
- * - Else → fetch from GitHub → parse → cache → return
- */
 export async function getRecipes() {
     
     if (cacheExists()) {
@@ -55,8 +50,17 @@ async function main() {
     console.log(`\n✔ Total valid recipes: ${recipes.length}`);
 }
 
-// Only run main() if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+//// Only run main() if this file is executed directly
+//if (import.meta.url === `file://${process.argv[1]}`) {
+//    main().catch(err => {
+//        console.error("❌ Error:", err.message);
+//    });
+//}
+
+const isDirectRun = process.argv[1] &&
+    import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"));
+
+if (isDirectRun) {
     main().catch(err => {
         console.error("❌ Error:", err.message);
     });
