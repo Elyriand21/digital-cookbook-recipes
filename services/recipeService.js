@@ -2,57 +2,58 @@
 import { fetchRecipeFiles } from "./githubService.js";
 import { parseRecipe } from "../parsers/recipeParser.js";
 import { loadRecipesFromCache, saveRecipesLocally } from "./storageService.js";
+import fetch from "node-fetch";
 
 // GitHub folder SHA caching and auto-fetching
-export async function getRecipesForGUI() {
+export async function getRecipesForGUI(logCallback = console.log) {
     const cache = loadRecipesFromCache();
     let liveFolderSha = null;
     let recipes = [];
 
+    function log(msg) {
+        logCallback(msg);
+        console.log(msg); // always log to terminal too
+    }
+
     try {
-        // Get latest folder SHA from GitHub
         liveFolderSha = await getRecipesFolderSha();
     } catch (err) {
-        console.warn("⚠ Unable to fetch recipes folder SHA. Using cached recipes if available.");
+        log("⚠ Unable to fetch recipes folder SHA. Using cached recipes if available.");
         if (cache?.recipes) return cache.recipes;
     }
 
-    // Use cache if SHA matches
     if (cache?.meta?.repoSha && liveFolderSha && cache.meta.repoSha === liveFolderSha) {
-        console.log("✔ Recipes folder unchanged. Using cached recipes.");
+        log("✔ Recipes folder unchanged. Using cached recipes.");
         return cache.recipes;
     }
 
-    // Otherwise, fetch from GitHub
     try {
         const files = await fetchRecipeFiles();
 
-        // Parse recipes
         recipes = files.map(f => {
             try {
                 return parseRecipe(f.content);
             } catch (err) {
-                console.warn(`⚠ Skipping invalid recipe: ${f.filename}`);
+                log(`⚠ Skipping invalid recipe: ${f.filename}`);
                 return null;
             }
-        }).filter(Boolean); // remove nulls
+        }).filter(Boolean);
 
-        console.log(`✔ ${recipes.length} recipes parsed`);
+        log(`✔ ${recipes.length} recipes parsed`);
 
-        // Save to cache with latest SHA
         saveRecipesLocally(recipes, liveFolderSha);
-        console.log("✔ Recipes cached locally");
-
+        log("✔ Recipes cached locally");
     } catch (err) {
-        console.error("❌ Failed to fetch recipes from GitHub. Using cache if available.", err.message);
+        log(`❌ Failed to fetch recipes from GitHub. Using cache if available: ${err.message}`);
         if (cache?.recipes) {
-            console.log("✔ Using cached recipes.");
+            log("✔ Using cached recipes.");
             recipes = cache.recipes;
         }
     }
 
     return recipes;
 }
+
 
 // Helper function to fetch folder SHA from GitHub
 async function getRecipesFolderSha() {

@@ -2,19 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Digital Cookbook</title>
+    <title>Zero's Open-Source Cookbook</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+    <!-- Top bar: banner + search + refresh -->
     <div id="top-bar">
+        <h1 id="banner">Zero's Open-Source Cookbook</h1>
         <input type="text" id="searchBox" placeholder="Search recipes...">
         <button id="refreshBtn">Refresh Recipes</button>
     </div>
 
-    <!-- Recipe List -->
+    <!-- Recipe List Panel -->
     <ul id="recipeListPanel"></ul>
 
-    <!-- Recipe Details -->
+    <!-- Recipe Details Panel -->
     <div id="recipeDetailsPanel" style="display:none;">
         <h2 class="title"></h2>
         <h3>Ingredients</h3>
@@ -24,6 +26,9 @@
         <button id="backBtn">Back</button>
     </div>
 
-    <script type="module" src="renderer.js"></script>
+    <!-- Log Panel: terminal-only, we can hide this if you want -->
+    <pre id="logPanel" style="display:none;"></pre>
+
+    <script type="module" src="./renderer.js"></script>
 </body>
 </html>

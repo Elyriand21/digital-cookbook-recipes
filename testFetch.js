@@ -50,7 +50,7 @@ export async function getRecipes() {
             console.log("🌐 Recipes folder changed!");
 
             // Prompt user to fetch updated recipes
-            const answer = await askUser("Do you want to fetch the latest recipes? (y/n) ");
+            const answer = "y";
             if (answer.toLowerCase() !== "y") {
                 console.log("✔ Using old cached recipes.");
                 return cache.recipes;
