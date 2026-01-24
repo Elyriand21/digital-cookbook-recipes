@@ -4,7 +4,9 @@ import fetch from "node-fetch";
 import fs from "fs";
 import os from "os";
 import { fileURLToPath } from "url";
-import { parseRecipe } from "./parsers/recipeParser.js";
+import { fetchRecipeFiles } from "./services/githubService.js";
+import { saveRecipesLocally, loadRecipesFromCache } from "./services/storageService.js";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,66 +19,6 @@ const CACHE_FILE = path.join(CACHE_DIR, "recipes.json");
 const OWNER = "Elyriand21";
 const REPO = "digital-cookbook-recipes";
 const RECIPES_PATH = "recipes";
-
-// ------------------
-// Fetch recipes from GitHub
-// ------------------
-async function fetchRecipesFromGitHub(log = console.log) {
-    log("⏳ Fetching recipes from GitHub...");
-
-    const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${RECIPES_PATH}`;
-    const res = await fetch(apiUrl);
-    if (!res.ok) throw new Error(`GitHub API failed: ${res.status}`);
-    const files = await res.json();
-    const markdownFiles = files.filter(f => f.name.endsWith(".md"));
-
-    const recipes = [];
-    for (const file of markdownFiles) {
-        try {
-            const fileRes = await fetch(file.download_url);
-            const content = await fileRes.text();
-            const recipe = parseRecipe(content);
-            recipes.push(recipe);
-            log(`✅ Parsed ${recipe.title}`);
-        } catch (err) {
-            log(`⚠ Failed to fetch/parse ${file.name}: ${err.message}`);
-        }
-    }
-
-    return recipes;
-}
-
-// ------------------
-// Load/Save cache
-// ------------------
-function saveRecipesLocally(recipes, folderSha) {
-    fs.mkdirSync(CACHE_DIR, { recursive: true });
-    fs.writeFileSync(
-        CACHE_FILE,
-        JSON.stringify(
-            {
-                recipes,
-                meta: {
-                    folderSha,
-                    cachedAt: new Date().toISOString()
-                }
-            },
-            null,
-            2
-        ),
-        "utf-8"
-    );
-}
-
-function loadRecipesFromCache() {
-    if (!fs.existsSync(CACHE_FILE)) return null;
-
-    try {
-        return JSON.parse(fs.readFileSync(CACHE_FILE, "utf-8"));
-    } catch {
-        return null;
-    }
-}
 
 async function getRecipesFolderSha() {
     const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${RECIPES_PATH}`;
@@ -117,7 +59,7 @@ ipcMain.handle("get-recipes", async () => {
             };
         }
 
-        const liveRecipes = await fetchRecipesFromGitHub();
+        const liveRecipes = await fetchRecipeFiles();
 
         const oldIds = new Set(cache.recipes.map(r => r.id));
         const newIds = new Set(liveRecipes.map(r => r.id));

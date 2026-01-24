@@ -1,4 +1,6 @@
-﻿document.addEventListener("DOMContentLoaded", async () => {
+﻿console.log("🧑‍🍳 Renderer process started");
+
+document.addEventListener("DOMContentLoaded", async () => {
     // --- Elements ---
     const recipeListPanel = document.getElementById("recipeListPanel");
     const recipeDetailsPanel = document.getElementById("recipeDetailsPanel");
@@ -48,32 +50,6 @@
         }
     }
 
-    // --- Detect added or removed recipes ---
-    function getRecipeDifferences(oldRecipes, newRecipes) {
-        const oldIds = new Set(oldRecipes.map(r => r.id));
-        const newIds = new Set(newRecipes.map(r => r.id));
-        const added = newRecipes.filter(r => !oldIds.has(r.id));
-        const removed = oldRecipes.filter(r => !newIds.has(r.id));
-        return { added, removed };
-    }
-
-    // --- Back button ---
-    backBtn.addEventListener("click", () => {
-        recipeDetailsPanel.style.display = "none";
-        recipeListPanel.style.display = "block";
-    });
-
-    // --- Search box ---
-    searchBox.addEventListener("input", () => {
-        const query = searchBox.value.trim().toLowerCase();
-        const filtered = allRecipes.filter(recipe =>
-            (recipe.title?.toLowerCase().includes(query)) ||
-            (recipe.tags?.some(tag => tag.toLowerCase().includes(query))) ||
-            (recipe.ingredients?.some(i => i.toLowerCase().includes(query)))
-        );
-        populateRecipeList(filtered);
-    });
-
     // --- Refresh button ---
     async function refreshRecipes() {
         log("🔄 Checking for recipe updates...");
@@ -108,6 +84,23 @@
 
     refreshBtn.addEventListener("click", refreshRecipes);
 
+    // --- Back button ---
+    backBtn.addEventListener("click", () => {
+        recipeDetailsPanel.style.display = "none";
+        recipeListPanel.style.display = "block";
+    });
+
+    // --- Search box ---
+    searchBox.addEventListener("input", () => {
+        const query = searchBox.value.trim().toLowerCase();
+        const filtered = allRecipes.filter(recipe =>
+            (recipe.title?.toLowerCase().includes(query)) ||
+            (recipe.tags?.some(tag => tag.toLowerCase().includes(query))) ||
+            (recipe.ingredients?.some(i => i.toLowerCase().includes(query)))
+        );
+        populateRecipeList(filtered);
+    });
+
     // --- Clear cache button ---
     clearCacheBtn.addEventListener("click", async () => {
         const confirmed = confirm("⚠ Are you sure you want to delete local cache? Recipes will be re-fetched.");
@@ -127,27 +120,5 @@
 
     // --- Initialize cookbook ---
     log("⏳ Initializing cookbook...");
-    const cachedRecipes = allRecipes;
-    const result = await window.api.getRecipes();
-    allRecipes = result.recipes;
-    const { added, removed } = result;
-
-    let proceed = true;
-    if (added.length && removed.length) {
-        proceed = confirm(`⚠ ${added.length} new recipe(s) added and ${removed.length} recipe(s) removed.\nDo you want to update your recipe list?`);
-    } else if (added.length) {
-        proceed = confirm(`✅ ${added.length} new recipe(s) added.\nDo you want to update your recipe list?`);
-    } else if (removed.length) {
-        proceed = confirm(`⚠ ${removed.length} recipe(s) were removed.\nDo you want to update your recipe list?`);
-    } else {
-        proceed = false;
-    }
-
-    if (proceed) {
-        populateRecipeList(allRecipes);
-        log(`✔ Recipe list updated. ${allRecipes.length} recipe(s) available`);
-    } else {
-        populateRecipeList(cachedRecipes.length ? cachedRecipes : allRecipes);
-        log("ℹ Recipe list initialized without updates");
-    }
+    refreshRecipes();
 });
