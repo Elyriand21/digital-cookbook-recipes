@@ -39,7 +39,7 @@ Once the .zip is extracted, running the installer.exe will bring up a Microsft D
 
 ## Release Notes
 
-### v1.0.0 – Initial Release
+### v1.0.0
 
 - Fetch and cache recipes directly from GitHub.
 - Display detailed recipe information including ingredients, instructions, prep/cook time, and servings.
