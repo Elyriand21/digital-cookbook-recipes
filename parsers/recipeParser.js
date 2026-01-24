@@ -14,6 +14,7 @@ function normalizeText(str) {
 export function parseRecipe(markdownText) {
     const parsed = matter(markdownText);
     const data = parsed.data;
+    console.log("Inside parseRecipe");
     const body = parsed.content;
 
     if (!data.id || !data.title) {

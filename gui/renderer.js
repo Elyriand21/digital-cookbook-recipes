@@ -59,9 +59,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const liveRecipes = result.recipes;
         const { added, removed } = result;
 
-        console.log("cachedRecipes.recipes Length: ", cachedRecipes.recipes.length);
-        console.log("liveRecipes Length: ", liveRecipes.length);
-
         let proceed = true;
 
         // If the cache does not exist
@@ -76,7 +73,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             proceed = confirm(`⚠ ${removed.length} recipe(s) were removed.\nDo you want to update your recipe list?`);
         } else if (cachedRecipes.recipes.length == liveRecipes.length) {
             console.log("No changes detected between cached and live recipes");
-            proceed = true;
+            populateRecipeList(cachedRecipes.recipes);
+            alert("📋 Your recipes are up to date!");
+            proceed = false;
         } else {
             alert("📋 Your recipes are up to date!");
             proceed = false;
@@ -86,6 +85,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             allRecipes = liveRecipes;
             populateRecipeList(allRecipes);
             log(`✔ Recipe list updated. ${allRecipes.length} recipe(s) available`);
+            alert(`✔ Reloaded ${allRecipes.length} recipes from GitHub`);
+            log(`✔ Reloaded ${allRecipes.length} recipes`);
         } else {
             log("ℹ Recipe update canceled or no changes detected");
         }
@@ -119,12 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const result = await window.api.clearCache();
         log(result.message);
 
-        const res = await window.api.getRecipes();
-        allRecipes = res.recipes;
-        populateRecipeList(allRecipes);
-
-        alert(`✔ Reloaded ${allRecipes.length} recipes from GitHub`);
-        log(`✔ Reloaded ${allRecipes.length} recipes`);
+        refreshRecipes();
     });
 
     // --- Initialize cookbook ---

@@ -1,10 +1,9 @@
 ﻿import { app, BrowserWindow, Menu, ipcMain } from "electron";
 import path from "path";
-import fetch from "node-fetch";
 import fs from "fs";
 import os from "os";
 import { fileURLToPath } from "url";
-import { fetchRecipeFiles } from "./services/githubService.js";
+import { fetchRecipeFiles, getRecipesFolderSha } from "./services/githubService.js";
 import { saveRecipesLocally, loadRecipesFromCache } from "./services/storageService.js";
 
 
@@ -15,32 +14,6 @@ const __dirname = path.dirname(__filename);
 const CACHE_DIR = path.join(os.homedir(), ".digitalcookbook");
 const CACHE_FILE = path.join(CACHE_DIR, "recipes.json");
 
-// GitHub config
-const OWNER = "Elyriand21";
-const REPO = "digital-cookbook-recipes";
-const RECIPES_PATH = "recipes";
-
-async function getRecipesFolderSha() {
-    const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${RECIPES_PATH}`;
-    const res = await fetch(apiUrl);
-    if (!res.ok) throw new Error(`GitHub API failed: ${res.status}`);
-    const files = await res.json();
-
-    const combined = files
-        .filter(f => f.type === "file")
-        .map(f => `${f.name}:${f.sha}`)
-        .sort()
-        .join("|");
-
-    let hash = 0;
-    for (let i = 0; i < combined.length; i++) {
-        hash = ((hash << 5) - hash) + combined.charCodeAt(i);
-        hash |= 0;
-    }
-
-    return String(hash);
-}
-
 // ------------------
 // IPC handlers
 // ------------------
@@ -50,6 +23,7 @@ ipcMain.handle("get-recipes", async () => {
         const liveFolderSha = await getRecipesFolderSha();
 
         if (cache.meta?.folderSha === liveFolderSha && cache.recipes.length) {
+            console.log("Recipes are up to date. Using cached version.");
             return {
                 recipes: cache.recipes,
                 added: [],
@@ -58,6 +32,7 @@ ipcMain.handle("get-recipes", async () => {
                 liveFolderSha
             };
         }
+        console.log("Fetching latest recipes from GitHub...");
 
         const liveRecipes = await fetchRecipeFiles();
 
@@ -105,7 +80,6 @@ ipcMain.handle("clear-cache", async () => {
 
 ipcMain.handle("load-cached-recipes", async () => {
     try {
-        console.log("Made it into load-cached-recipes handler");
         const cache = loadRecipesFromCache();
         return { recipes: cache?.recipes || [] };
     } catch (err) {

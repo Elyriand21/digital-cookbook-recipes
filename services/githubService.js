@@ -18,6 +18,7 @@ export async function fetchRecipeFiles() {
     for (const file of markdownFiles) {
         try {
             const fileRes = await fetch(file.download_url);
+            console.log("fileRes: ", fileRes);
             const content = await fileRes.text();
             const recipe = parseRecipe(content);
             recipes.push(recipe);
@@ -30,14 +31,23 @@ export async function fetchRecipeFiles() {
     return recipes;
 }
 
-export async function getLatestRepoSha() {
-    const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/commits/main`; // use actual default branch
-
+export async function getRecipesFolderSha() {
+    const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${RECIPES_PATH}`;
     const res = await fetch(apiUrl);
-    if (!res.ok) {
-        throw new Error(`GitHub API failed: ${res.status} ${res.statusText}`);
+    if (!res.ok) throw new Error(`GitHub API failed: ${res.status}`);
+    const files = await res.json();
+
+    const combined = files
+        .filter(f => f.type === "file")
+        .map(f => `${f.name}:${f.sha}`)
+        .sort()
+        .join("|");
+
+    let hash = 0;
+    for (let i = 0; i < combined.length; i++) {
+        hash = ((hash << 5) - hash) + combined.charCodeAt(i);
+        hash |= 0;
     }
 
-    const data = await res.json();
-    return data.sha; // returns the SHA of the latest commit
+    return String(hash);
 }
