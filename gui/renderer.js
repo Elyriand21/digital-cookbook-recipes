@@ -53,14 +53,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     // --- Refresh button ---
     async function refreshRecipes() {
         log("🔄 Checking for recipe updates...");
-        const cachedRecipes = allRecipes;
+        //const cachedRecipes = allRecipes;
+        const cachedRecipes = await window.api.loadCachedRecipes();
         const result = await window.api.getRecipes();
         const liveRecipes = result.recipes;
         const { added, removed } = result;
 
+        console.log("cachedRecipes.recipes Length: ", cachedRecipes.recipes.length);
+        console.log("liveRecipes Length: ", liveRecipes.length);
+
         let proceed = true;
 
-        if (!cachedRecipes.length && liveRecipes.length) {
+        // If the cache does not exist
+        if (!cachedRecipes.recipes.length && liveRecipes.length) {
+            console.log("No cached recipes found, loading all live recipes");
             proceed = true; // force reload after cache clear
         } else if (added.length && removed.length) {
             proceed = confirm(`⚠ ${added.length} new recipe(s) added and ${removed.length} recipe(s) removed.\nDo you want to update your recipe list?`);
@@ -68,6 +74,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             proceed = confirm(`✅ ${added.length} new recipe(s) added.\nDo you want to update your recipe list?`);
         } else if (removed.length) {
             proceed = confirm(`⚠ ${removed.length} recipe(s) were removed.\nDo you want to update your recipe list?`);
+        } else if (cachedRecipes.recipes.length == liveRecipes.length) {
+            console.log("No changes detected between cached and live recipes");
+            proceed = true;
         } else {
             alert("📋 Your recipes are up to date!");
             proceed = false;

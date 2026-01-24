@@ -103,6 +103,16 @@ ipcMain.handle("clear-cache", async () => {
     }
 });
 
+ipcMain.handle("load-cached-recipes", async () => {
+    try {
+        console.log("Made it into load-cached-recipes handler");
+        const cache = loadRecipesFromCache();
+        return { recipes: cache?.recipes || [] };
+    } catch (err) {
+        return { recipes: [] };
+    }
+});
+
 // ------------------
 // Create window
 // ------------------

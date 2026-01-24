@@ -50,7 +50,7 @@ Once the .zip is extracted, running the installer.exe will bring up a Microsft D
 
 ### v1.0.1 
 
-- Fixes #1 where the app incorrectly reported **“new recipes”** on startup even when no changes were made in the repository  
+- Fixes issue where the app incorrectly reported **“new recipes”** on startup even when no changes were made in the repository  
 - Resolved an issue where recipes would **not populate correctly** in the UI under certain conditions  
 - Fixed refresh logic so the **Refresh Recipes** button always behaves correctly  
 - Fixed cache handling so the **Clear Cache** button reliably forces a full re-fetch from GitHub  
