@@ -78,12 +78,15 @@
     async function refreshRecipes() {
         log("🔄 Checking for recipe updates...");
         const cachedRecipes = allRecipes;
-        const liveRecipes = await window.api.getRecipes();
-        const { added, removed } = getRecipeDifferences(cachedRecipes, liveRecipes);
+        const result = await window.api.getRecipes();
+        const liveRecipes = result.recipes;
+        const { added, removed } = result;
 
         let proceed = true;
 
-        if (added.length && removed.length) {
+        if (!cachedRecipes.length && liveRecipes.length) {
+            proceed = true; // force reload after cache clear
+        } else if (added.length && removed.length) {
             proceed = confirm(`⚠ ${added.length} new recipe(s) added and ${removed.length} recipe(s) removed.\nDo you want to update your recipe list?`);
         } else if (added.length) {
             proceed = confirm(`✅ ${added.length} new recipe(s) added.\nDo you want to update your recipe list?`);
@@ -114,17 +117,20 @@
         const result = await window.api.clearCache();
         log(result.message);
 
-        // Reload recipes after cache clear
-        allRecipes = await window.api.getRecipes();
+        const res = await window.api.getRecipes();
+        allRecipes = res.recipes;
         populateRecipeList(allRecipes);
+
+        alert(`✔ Reloaded ${allRecipes.length} recipes from GitHub`);
         log(`✔ Reloaded ${allRecipes.length} recipes`);
     });
 
     // --- Initialize cookbook ---
     log("⏳ Initializing cookbook...");
     const cachedRecipes = allRecipes;
-    allRecipes = await window.api.getRecipes();
-    const { added, removed } = getRecipeDifferences(cachedRecipes, allRecipes);
+    const result = await window.api.getRecipes();
+    allRecipes = result.recipes;
+    const { added, removed } = result;
 
     let proceed = true;
     if (added.length && removed.length) {
