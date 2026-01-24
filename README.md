@@ -48,7 +48,7 @@ Once the .zip is extracted, running the installer.exe will bring up a Microsft D
 - Refresh and clear cache features to manage your local recipe list.
 - Clean, intuitive Electron-based GUI.
 
-# v1.0.1 
+### v1.0.1 
 
 - Fixes #1 where the app incorrectly reported **“new recipes”** on startup even when no changes were made in the repository  
 - Resolved an issue where recipes would **not populate correctly** in the UI under certain conditions  
