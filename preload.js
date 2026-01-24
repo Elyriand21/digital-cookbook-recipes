@@ -6,10 +6,6 @@ contextBridge.exposeInMainWorld("api", {
     // Fetch recipes from main process
     getRecipes: async () => await ipcRenderer.invoke("get-recipes"),
 
-    // Save updated recipes after user confirms
-    saveUpdatedRecipes: async (recipes, folderSha) =>
-        await ipcRenderer.invoke("save-updated-recipes", recipes, folderSha),
-
     // Load cached recipes
     loadCachedRecipes: async () =>
         await ipcRenderer.invoke("load-cached-recipes"),
