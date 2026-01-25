@@ -22,7 +22,7 @@ Once the .zip is extracted, running the installer.exe will bring up a Microsft D
 
 💻 **Windows Installer Included** – Download the installer from the [GitHub release](https://github.com/Elyriand21/digital-cookbook-recipes/releases).
 
-1. Download the `.exe` installer from the Assets section.
+1. Download the installer
 2. Run the installer and follow the on-screen instructions.
 3. Recipes are cached locally but can be refreshed anytime to fetch the latest from GitHub.
 
