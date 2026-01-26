@@ -1,5 +1,5 @@
 ﻿// recipeService.js
-import { fetchRecipeFiles } from "./githubService.js";
+import { fetchRecipeFiles, getRecipesFolderSha } from "./githubService.js";
 import { parseRecipe } from "../parsers/recipeParser.js";
 import { loadRecipesFromCache, saveRecipesLocally } from "./storageService.js";
 import fetch from "node-fetch";
@@ -52,18 +52,4 @@ export async function getRecipesForGUI(logCallback = console.log) {
     }
 
     return recipes;
-}
-
-
-// Helper function to fetch folder SHA from GitHub
-async function getRecipesFolderSha() {
-    const OWNER = "Elyriand21";
-    const REPO = "digital-cookbook-recipes";
-    const RECIPES_PATH = "recipes";
-
-    const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${RECIPES_PATH}`;
-    const res = await fetch(apiUrl);
-    if (!res.ok) throw new Error(`GitHub API failed: ${res.status}`);
-    const data = await res.json();
-    return data.sha;
 }
