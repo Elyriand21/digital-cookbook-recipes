@@ -69,6 +69,13 @@ Once the .zip is extracted, running the installer.exe will bring up a Microsft D
 - Resolved silent IPC mismatch that caused refresh edge cases.
 - Removed a line of code that was never called in preload.js
 
+### v1.1.0
+
+- Added support for an `allergies` field. The parser normalizes values and defaults missing/empty allergies to `["None"]`.
+- UI: show `Allergies` in the recipe details view (displays "None" when there are no allergens).
+- Search: recipes are searchable by `allergies`.
+- Cache migration: existing cached recipes are migrated to include `["None"]` where necessary to maintain consistency.
+
 ---
 
 ## Roadmap & Future Enhancements
