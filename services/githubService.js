@@ -18,7 +18,6 @@ export async function fetchRecipeFiles() {
     for (const file of markdownFiles) {
         try {
             const fileRes = await fetch(file.download_url);
-            console.log("fileRes: ", fileRes);
             const content = await fileRes.text();
             const recipe = parseRecipe(content);
             recipes.push(recipe);
