@@ -1,7 +1,7 @@
 ---
 id: chicken-alfredo
 title: Chicken Alfredo
-allergies: [dairy, gluten]
+allergies: [gluten]
 tags: [italian, dinner, pasta]
 prep_time: 15
 cook_time: 25
