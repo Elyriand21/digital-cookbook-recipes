@@ -54,6 +54,10 @@ export function parseRecipe(markdownText) {
         allergies = ["None"];
     }
 
+    // Debug: log id and allergies when a recipe is parsed to help troubleshoot stale cache / parsing issues
+    // Remove or guard this log for production if you prefer quieter output.
+    console.log(`parseRecipe: id='${normalizeText(data.id)}' allergies=${JSON.stringify(allergies)}`);
+
     return {
         id: normalizeText(data.id),
         title: normalizeText(data.title),
