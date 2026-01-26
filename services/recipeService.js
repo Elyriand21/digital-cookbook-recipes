@@ -2,7 +2,6 @@
 import { fetchRecipeFiles, getRecipesFolderSha } from "./githubService.js";
 import { parseRecipe } from "../parsers/recipeParser.js";
 import { loadRecipesFromCache, saveRecipesLocally } from "./storageService.js";
-import fetch from "node-fetch";
 
 // GitHub folder SHA caching and auto-fetching
 export async function getRecipesForGUI(logCallback = console.log) {
@@ -19,12 +18,43 @@ export async function getRecipesForGUI(logCallback = console.log) {
         liveFolderSha = await getRecipesFolderSha();
     } catch (err) {
         log("⚠ Unable to fetch recipes folder SHA. Using cached recipes if available.");
-        if (cache?.recipes) return cache.recipes;
+        if (cache?.recipes) {
+            // Ensure cached recipes have allergies field (migrate old cache)
+            const migrated = cache.recipes.map(r => {
+                if (!Array.isArray(r.allergies) || r.allergies.length === 0) {
+                    return { ...r, allergies: ["None"] };
+                }
+                return r;
+            });
+            // Save migrated cache back to disk to avoid repeating migration
+            try {
+                saveRecipesLocally(migrated, cache.meta?.repoSha || liveFolderSha);
+            } catch (e) {
+                log(`⚠ Failed to update cache during migration: ${e.message}`);
+            }
+            return migrated;
+        }
     }
 
     if (cache?.meta?.repoSha && liveFolderSha && cache.meta.repoSha === liveFolderSha) {
         log("✔ Recipes folder unchanged. Using cached recipes.");
-        return cache.recipes;
+        // Ensure cached recipes have allergies field (migrate old cache)
+        const migrated = cache.recipes.map(r => {
+            if (!Array.isArray(r.allergies) || r.allergies.length === 0) {
+                return { ...r, allergies: ["None"] };
+            }
+            return r;
+        });
+        // If we migrated anything, save it back
+        const needsSave = migrated.some((m, i) => migrated[i] !== cache.recipes[i]);
+        if (needsSave) {
+            try {
+                saveRecipesLocally(migrated, cache.meta.repoSha);
+            } catch (e) {
+                log(`⚠ Failed to update cache during migration: ${e.message}`);
+            }
+        }
+        return migrated;
     }
 
     try {
@@ -38,6 +68,14 @@ export async function getRecipesForGUI(logCallback = console.log) {
                 return null;
             }
         }).filter(Boolean);
+
+        // Ensure parser-produced recipes all have allergies (parser already defaults, but be defensive)
+        recipes = recipes.map(r => {
+            if (!Array.isArray(r.allergies) || r.allergies.length === 0) {
+                return { ...r, allergies: ["None"] };
+            }
+            return r;
+        });
 
         log(`✔ ${recipes.length} recipes parsed`);
 

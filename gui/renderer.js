@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const cookEl = recipeDetailsPanel.querySelector(".cookTime");
     const servingsEl = recipeDetailsPanel.querySelector(".servings");
     const ingredientsEl = recipeDetailsPanel.querySelector(".ingredients");
+    const allergiesEl = recipeDetailsPanel.querySelector(".allergies");
     const instructionsEl = recipeDetailsPanel.querySelector(".instructions");
     const backBtn = document.getElementById("backBtn");
     const searchBox = document.getElementById("searchBox");
@@ -31,6 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         servingsEl.textContent = recipe.servings ? `Servings: ${recipe.servings}` : "";
 
         ingredientsEl.textContent = recipe.ingredients?.join("\n") || "";
+        allergiesEl.textContent = recipe.allergies?.join("\n") || "";
         instructionsEl.textContent = recipe.instructions?.join("\n") || "";
     }
 
@@ -106,7 +108,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const filtered = allRecipes.filter(recipe =>
             (recipe.title?.toLowerCase().includes(query)) ||
             (recipe.tags?.some(tag => tag.toLowerCase().includes(query))) ||
-            (recipe.ingredients?.some(i => i.toLowerCase().includes(query)))
+            (recipe.ingredients?.some(i => i.toLowerCase().includes(query))) ||
+            (recipe.allergies?.some(a => a.toLowerCase().includes(query)))
         );
         populateRecipeList(filtered);
     });

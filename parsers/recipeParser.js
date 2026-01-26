@@ -37,6 +37,23 @@ export function parseRecipe(markdownText) {
             .filter(Boolean)
         : [];
 
+    // Normalize allergies:
+    // - If frontmatter provides an array, map/normalize entries
+    // - If frontmatter provides a string, allow comma-separated values and normalize
+    let allergies = [];
+    if (Array.isArray(data.allergies)) {
+        allergies = data.allergies.map(normalizeText).filter(Boolean);
+    } else if (typeof data.allergies === "string") {
+        allergies = data.allergies
+            .split(",")
+            .map(item => normalizeText(item))
+            .filter(Boolean);
+    }
+
+    if (allergies.length === 0) {
+        allergies = ["None"];
+    }
+
     return {
         id: normalizeText(data.id),
         title: normalizeText(data.title),
@@ -44,6 +61,7 @@ export function parseRecipe(markdownText) {
         prepTime: Number(data.prep_time) || null,
         cookTime: Number(data.cook_time) || null,
         servings: Number(data.servings) || null,
+        allergies,
         ingredients,
         instructions,
         rawMarkdown: markdownText
