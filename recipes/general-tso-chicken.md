@@ -2,6 +2,7 @@
 id: general-tsos-chicken
 title: General Tso’s Chicken
 tags: [asian, chicken, dinner, chinese-american]
+allergies: [gluten, soy]
 prep_time: 15
 cook_time: 15
 servings: 8
