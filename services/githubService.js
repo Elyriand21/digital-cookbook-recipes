@@ -14,6 +14,10 @@ export async function fetchRecipeFiles() {
     const files = await res.json();
     const markdownFiles = files.filter(f => f.name.endsWith(".md"));
 
+    // Debug: list files and their SHAs returned by the GitHub API
+    console.log(`debug: ${markdownFiles.length} markdown file(s) found in '${RECIPES_PATH}':`);
+    markdownFiles.forEach(f => console.log(`debug: file=${f.name} sha=${f.sha}`));
+
     const recipes = [];
     for (const file of markdownFiles) {
         try {
@@ -42,11 +46,19 @@ export async function getRecipesFolderSha() {
         .sort()
         .join("|");
 
+    // Debug: show combined string used to compute folder hash
+    console.log(`debug: combined file:sha string length=${combined.length}`);
+    // Optionally print combined for deeper debugging (comment/uncomment as needed)
+    // console.log(`debug: combined=${combined}`);
+
     let hash = 0;
     for (let i = 0; i < combined.length; i++) {
         hash = ((hash << 5) - hash) + combined.charCodeAt(i);
         hash |= 0;
     }
 
-    return String(hash);
+    const result = String(hash);
+    // Debug: report computed folder hash
+    console.log(`debug: computed folderSha=${result}`);
+    return result;
 }
