@@ -22,7 +22,7 @@ Once the .zip is extracted, running the installer.exe will bring up a Microsft D
 
 💻 **Windows Installer Included** – Download the installer from the [GitHub release](https://github.com/Elyriand21/digital-cookbook-recipes/releases).
 
-1. Download the `.exe` installer from the Assets section.
+1. Download the installer
 2. Run the installer and follow the on-screen instructions.
 3. Recipes are cached locally but can be refreshed anytime to fetch the latest from GitHub.
 
@@ -55,6 +55,19 @@ Once the .zip is extracted, running the installer.exe will bring up a Microsft D
 - Fixed refresh logic so the **Refresh Recipes** button always behaves correctly  
 - Fixed cache handling so the **Clear Cache** button reliably forces a full re-fetch from GitHub  
 - Improved startup consistency and internal state syncing
+
+### v1.0.2
+
+- Added missing IPC handler `load-cached-recipes` to match the preload API.
+- Centralized GitHub fetch and folder hash logic into `githubService.js`.
+- Refresh logic now compares live GitHub recipes against cached recipes instead of in-memory state.
+- App startup now uses the same refresh flow as the manual Refresh button.
+- Improved console logging for fetch operations, cache usage, and update decisions.
+- Fixed false “Your recipes are up to date” message after clearing cache.
+- Fixed refresh not reloading recipes when no cache file exists.
+- Fixed inconsistent update detection after restarting the app.
+- Resolved silent IPC mismatch that caused refresh edge cases.
+- Removed a line of code that was never called in preload.js
 
 ---
 
