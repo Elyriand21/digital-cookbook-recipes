@@ -76,6 +76,13 @@ Once the .zip is extracted, running the installer.exe will bring up a Microsft D
 - Search: recipes are searchable by `allergies`.
 - Cache migration: existing cached recipes are migrated to include `["None"]` where necessary to maintain consistency.
 
+### v1.1.1
+- Fixed an issue where the allergies field was not being displayed correctly in some cases.
+- Improved error handling for malformed recipe data.
+- Fixed a bug where the search bar would not work due to the way information was being displayed to the user.
+- Minor UI tweaks for better readability of recipe details.
+- Optimized cache migration process for large recipe sets.
+
 ---
 
 ## Roadmap & Future Enhancements
