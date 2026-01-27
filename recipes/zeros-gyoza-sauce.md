@@ -1,7 +1,7 @@
 ---
 id: zero-gyoza-sauce
 title: Zero's Gyoza Sauce
-allergies:
+allergies: [soy]
 tags: [sauce]
 prep_time: 10
 cook_time: 0
