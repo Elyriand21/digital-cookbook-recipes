@@ -1,7 +1,7 @@
 ---
 id: zero-spicy-mayo
 title: Zero's Spicy Mayo
-allergies: [sessame, dairy]
+allergies: [sesame, dairy]
 tags: [sauce]
 prep_time: 10
 cook_time: 0
