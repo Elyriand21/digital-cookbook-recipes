@@ -1,10 +1,10 @@
 ---
 id: zero-japanese-clear-soup
 title: Zero's Japanese Clear Soup
-allergies:
+allergies: [soy, vegan, gluten]
 tags: [soup]
 prep_time: 10
-cook_time: 0
+cook_time: 240
 servings: 10
 ---
 
