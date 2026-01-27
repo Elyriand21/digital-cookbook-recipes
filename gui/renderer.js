@@ -16,6 +16,73 @@ document.addEventListener("DOMContentLoaded", async () => {
     const refreshBtn = document.getElementById("refreshBtn");
     const clearCacheBtn = document.getElementById("clearCacheBtn");
 
+    // Modal elements
+    const modalOverlay = document.getElementById("modalOverlay");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalMessage = document.getElementById("modalMessage");
+    const modalOk = document.getElementById("modalOk");
+    const modalCancel = document.getElementById("modalCancel");
+
+    // --- Modal helper functions ---
+    function showAlert(message, title = "Message") {
+        return new Promise(resolve => {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalCancel.style.display = "none";
+            modalOverlay.style.display = "flex";
+            modalOverlay.setAttribute("aria-hidden", "false");
+            modalOk.focus();
+
+            function cleanup() {
+                modalOverlay.style.display = "none";
+                modalOverlay.setAttribute("aria-hidden", "true");
+                modalOk.removeEventListener("click", okHandler);
+            }
+
+            function okHandler() {
+                cleanup();
+                resolve();
+            }
+
+            modalOk.addEventListener("click", okHandler);
+        });
+    }
+
+    function showConfirm(message, title = "Confirm") {
+        return new Promise(resolve => {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalCancel.style.display = "";
+            modalOverlay.style.display = "flex";
+            modalOverlay.setAttribute("aria-hidden", "false");
+            modalOk.focus();
+
+            function cleanup() {
+                modalOverlay.style.display = "none";
+                modalOverlay.setAttribute("aria-hidden", "true");
+                modalOk.removeEventListener("click", okHandler);
+                modalCancel.removeEventListener("click", cancelHandler);
+            }
+
+            function okHandler() {
+                cleanup();
+                resolve(true);
+            }
+
+            function cancelHandler() {
+                cleanup();
+                resolve(false);
+            }
+
+            modalOk.addEventListener("click", okHandler);
+            modalCancel.addEventListener("click", cancelHandler);
+        });
+    }
+
+    // Ensure input is focusable and receives pointer events
+    searchBox.tabIndex = 0;
+    searchBox.style.pointerEvents = "auto";
+
     let allRecipes = [];
 
     // --- Terminal logging only ---
@@ -55,7 +122,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // --- Refresh button ---
     async function refreshRecipes() {
         log("🔄 Checking for recipe updates...");
-        //const cachedRecipes = allRecipes;
         const cachedRecipes = await window.api.loadCachedRecipes();
         const result = await window.api.getRecipes();
         const liveRecipes = result.recipes;
@@ -68,18 +134,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("No cached recipes found, loading all live recipes");
             proceed = true; // force reload after cache clear
         } else if (added.length && removed.length) {
-            proceed = confirm(`⚠ ${added.length} new recipe(s) added and ${removed.length} recipe(s) removed.\nDo you want to update your recipe list?`);
+            proceed = await showConfirm(`⚠ ${added.length} new recipe(s) added and ${removed.length} recipe(s) removed.\nDo you want to update your recipe list?`);
         } else if (added.length) {
-            proceed = confirm(`✅ ${added.length} new recipe(s) added.\nDo you want to update your recipe list?`);
+            proceed = await showConfirm(`✅ ${added.length} new recipe(s) added.\nDo you want to update your recipe list?`);
         } else if (removed.length) {
-            proceed = confirm(`⚠ ${removed.length} recipe(s) were removed.\nDo you want to update your recipe list?`);
+            proceed = await showConfirm(`⚠ ${removed.length} recipe(s) were removed.\nDo you want to update your recipe list?`);
         } else if (cachedRecipes.recipes.length == liveRecipes.length) {
             console.log("No changes detected between cached and live recipes");
             populateRecipeList(cachedRecipes.recipes);
-            alert("📋 Your recipes are up to date!");
+            await showAlert("📋 Your recipes are up to date!");
             proceed = false;
         } else {
-            alert("📋 Your recipes are up to date!");
+            await showAlert("📋 Your recipes are up to date!");
             proceed = false;
         }
 
@@ -87,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             allRecipes = liveRecipes;
             populateRecipeList(allRecipes);
             log(`✔ Recipe list updated. ${allRecipes.length} recipe(s) available`);
-            alert(`✔ Reloaded ${allRecipes.length} recipes from GitHub`);
+            await showAlert(`✔ Reloaded ${allRecipes.length} recipes from GitHub`);
             log(`✔ Reloaded ${allRecipes.length} recipes`);
         } else {
             log("ℹ Recipe update canceled or no changes detected");
@@ -116,7 +182,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // --- Clear cache button ---
     clearCacheBtn.addEventListener("click", async () => {
-        const confirmed = confirm("⚠ Are you sure you want to delete local cache? Recipes will be re-fetched.");
+        const confirmed = await showConfirm("⚠ Are you sure you want to delete local cache? Recipes will be re-fetched.");
         if (!confirmed) return;
 
         log("🗑 Clearing local cache...");

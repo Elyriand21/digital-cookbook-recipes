@@ -24,13 +24,25 @@
             <span class="cookTime"></span>
             <span class="servings"></span>
         </div>
-        <h3>Allergies</h3>
-        <pre class="allergies"></pre>
         <h3>Ingredients</h3>
         <pre class="ingredients"></pre>
+        <h3>Allergies</h3>
+        <pre class="allergies"></pre>
         <h3>Instructions</h3>
         <pre class="instructions"></pre>
         <button id="backBtn">Back</button>
+    </div>
+
+    <!-- Hidden modal overlay used instead of alert/confirm -->
+    <div id="modalOverlay" class="modal-overlay" aria-hidden="true" style="display:none;">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div id="modalTitle" class="modal-title">Message</div>
+            <div id="modalMessage" class="modal-message"></div>
+            <div class="modal-buttons">
+                <button id="modalOk" class="modal-button">OK</button>
+                <button id="modalCancel" class="modal-button">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="./renderer.js"></script>
