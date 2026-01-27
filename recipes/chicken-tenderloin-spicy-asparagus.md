@@ -1,6 +1,6 @@
 ---
-id: chicken-tenderloin-spicy-asparagus
-title: Breaded Chicken Tenderloin with Spicy, Garlic Asparagus
+id: zeros-chicken-tenderloin-spicy-asparagus
+title: Zero's Breaded Chicken Tenderloin with Spicy, Garlic Asparagus
 allergies:
 tags: [dinner, spicy, chicken]
 prep_time: 5
